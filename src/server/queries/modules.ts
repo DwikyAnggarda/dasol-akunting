@@ -78,6 +78,7 @@ export type StockRow = {
 };
 
 const approvalSchema = z.object({
+  document_id: z.uuid(),
   document_number: z.string(),
   document_type: z.string(),
   id: z.uuid(),
@@ -85,6 +86,7 @@ const approvalSchema = z.object({
   submitted_at: z.string(),
 });
 export type ApprovalRow = {
+  documentId: string;
   documentNumber: string;
   documentType: string;
   id: string;
@@ -97,6 +99,7 @@ const auditSchema = z.object({
   created_at: z.string(),
   document_number: z.string().nullable(),
   entity_type: z.string(),
+  entity_id: z.uuid().nullable(),
   id: z.uuid(),
   reason: z.string().nullable(),
 });
@@ -105,6 +108,7 @@ export type AuditRow = {
   createdAt: string;
   documentNumber: string;
   entityType: string;
+  entityId: string;
   id: string;
   reason: string;
 };
@@ -237,13 +241,16 @@ export async function getApprovals(companyId: string): Promise<ApprovalRow[]> {
   const { supabase } = await requireUser();
   const { data, error } = await supabase
     .from("approval_requests")
-    .select("id, document_type, document_number, status, submitted_at")
+    .select(
+      "id, document_id, document_type, document_number, status, submitted_at",
+    )
     .eq("company_id", companyId)
     .order("submitted_at", { ascending: false })
     .limit(100);
   if (error) throw new Error("Antrean persetujuan tidak dapat dimuat.");
   return parseRows(approvalSchema, data, "Data persetujuan tidak valid.").map(
     (row) => ({
+      documentId: row.document_id,
       documentNumber: row.document_number,
       documentType: row.document_type,
       id: row.id,
@@ -257,7 +264,9 @@ export async function getAuditLogs(companyId: string): Promise<AuditRow[]> {
   const { supabase } = await requireUser();
   const { data, error } = await supabase
     .from("audit_logs")
-    .select("id, action, entity_type, document_number, reason, created_at")
+    .select(
+      "id, action, entity_type, entity_id, document_number, reason, created_at",
+    )
     .eq("company_id", companyId)
     .order("created_at", { ascending: false })
     .limit(100);
@@ -267,6 +276,7 @@ export async function getAuditLogs(companyId: string): Promise<AuditRow[]> {
     createdAt: row.created_at,
     documentNumber: row.document_number ?? "—",
     entityType: row.entity_type,
+    entityId: row.entity_id ?? "",
     id: row.id,
     reason: row.reason ?? "—",
   }));

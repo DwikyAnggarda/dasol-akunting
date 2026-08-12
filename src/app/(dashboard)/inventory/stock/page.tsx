@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ModulePage } from "@/components/common/ModulePage";
 import { formatDecimal, formatIDR } from "@/domain/money";
 import { getActiveCompanyContext } from "@/server/queries/company-context";
@@ -9,6 +10,16 @@ export default async function StockPage() {
   const rows = await getStock(c.companyId);
   return (
     <ModulePage
+      actions={
+        c.permissions.includes("inventory.write") ? (
+          <Link
+            className="bg-brand-500 rounded-xl px-4 py-2.5 text-sm font-semibold text-white"
+            href="/inventory/adjustments/new"
+          >
+            Adjust stok
+          </Link>
+        ) : undefined
+      }
       title="Saldo Persediaan"
       description="Kuantitas dan moving weighted-average cost per produk dan gudang."
       emptyTitle="Belum ada saldo stok"
@@ -35,6 +46,19 @@ export default async function StockPage() {
           label: "Nilai",
           align: "right",
           render: (v) => formatIDR(String(v)),
+        },
+        {
+          key: "id",
+          label: "Aksi",
+          align: "right",
+          render: (_value, row) => (
+            <Link
+              className="text-brand-600 text-xs font-semibold"
+              href={`/inventory/stock/${row.id}`}
+            >
+              Kartu stok
+            </Link>
+          ),
         },
       ]}
     />

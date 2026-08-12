@@ -8,12 +8,17 @@ export type TableColumn<Row> = {
 };
 
 type ModulePageProps<Row extends { id: string }> = {
+  actions?: React.ReactNode;
   columns: TableColumn<Row>[];
   description: string;
+  emptyAction?: React.ReactNode;
   emptyDescription: string;
   emptyTitle: string;
+  filters?: React.ReactNode;
   rows: Row[];
+  successMessage?: string;
   title: string;
+  trailing?: React.ReactNode;
 };
 
 export function StatusBadge({ value }: { value: string }) {
@@ -37,24 +42,41 @@ export function StatusBadge({ value }: { value: string }) {
 }
 
 export function ModulePage<Row extends { id: string }>({
+  actions,
   columns,
   description,
+  emptyAction,
   emptyDescription,
   emptyTitle,
+  filters,
   rows,
+  successMessage,
   title,
+  trailing,
 }: ModulePageProps<Row>) {
   return (
     <div>
       <PageBreadCrumb pageTitle={title} />
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-          {title}
-        </h1>
-        <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-500 dark:text-gray-400">
-          {description}
-        </p>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+            {title}
+          </h1>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-500 dark:text-gray-400">
+            {description}
+          </p>
+        </div>
+        {actions}
       </div>
+      {successMessage ? (
+        <p
+          className="border-success-200 bg-success-50 text-success-700 dark:border-success-900 dark:bg-success-950/30 dark:text-success-300 mb-4 rounded-xl border px-4 py-3 text-sm"
+          role="status"
+        >
+          {successMessage}
+        </p>
+      ) : null}
+      {filters ? <div className="mb-4">{filters}</div> : null}
       <section className="shadow-theme-xs overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         {rows.length === 0 ? (
           <div className="px-6 py-16 text-center">
@@ -67,6 +89,7 @@ export function ModulePage<Row extends { id: string }>({
             <p className="mx-auto mt-2 max-w-lg text-sm text-gray-500 dark:text-gray-400">
               {emptyDescription}
             </p>
+            {emptyAction ? <div className="mt-5">{emptyAction}</div> : null}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -106,6 +129,7 @@ export function ModulePage<Row extends { id: string }>({
           </div>
         )}
       </section>
+      {trailing}
     </div>
   );
 }

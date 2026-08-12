@@ -29,6 +29,12 @@ const navigation: NavSection[] = [
   {
     label: "Ringkasan",
     items: [
+      {
+        icon: <PageIcon />,
+        name: "Sales Quotation",
+        path: "/sales/quotations",
+        permission: "sales.read",
+      },
       { icon: <GridIcon />, name: "Dasbor", path: "/dashboard" },
       {
         icon: <CheckCircleIcon />,
@@ -36,6 +42,7 @@ const navigation: NavSection[] = [
         path: "/approvals",
         permission: "approval.read",
       },
+      { icon: <DocsIcon />, name: "Notifikasi", path: "/notifications" },
     ],
   },
   {
@@ -49,14 +56,86 @@ const navigation: NavSection[] = [
       },
       {
         icon: <PageIcon />,
+        name: "Sales Order",
+        path: "/sales/orders",
+        permission: "sales.read",
+      },
+      {
+        icon: <BoxCubeIcon />,
+        name: "Sales Delivery",
+        path: "/sales/deliveries",
+        permission: "sales.read",
+      },
+      {
+        icon: <DollarLineIcon />,
+        name: "Penerimaan Pelanggan",
+        path: "/sales/receipts",
+        permission: "sales.read",
+      },
+      {
+        icon: <PageIcon />,
+        name: "Retur Penjualan",
+        path: "/sales/returns",
+        permission: "sales.read",
+      },
+      {
+        icon: <PageIcon />,
         name: "Pembelian",
         path: "/purchases/invoices",
+        permission: "purchase.read",
+      },
+      {
+        icon: <PageIcon />,
+        name: "Purchase Request",
+        path: "/purchases/requests",
+        permission: "purchase.read",
+      },
+      {
+        icon: <PageIcon />,
+        name: "Purchase Order",
+        path: "/purchases/orders",
+        permission: "purchase.read",
+      },
+      {
+        icon: <BoxCubeIcon />,
+        name: "Goods Receipt",
+        path: "/purchases/receipts",
+        permission: "purchase.read",
+      },
+      {
+        icon: <DollarLineIcon />,
+        name: "Pembayaran Pemasok",
+        path: "/purchases/payments",
+        permission: "purchase.read",
+      },
+      {
+        icon: <PageIcon />,
+        name: "Retur Pembelian",
+        path: "/purchases/returns",
         permission: "purchase.read",
       },
       {
         icon: <BoxCubeIcon />,
         name: "Persediaan",
         path: "/inventory/stock",
+        permission: "inventory.read",
+      },
+      {
+        icon: <BoxCubeIcon />,
+        name: "Stock Adjustment",
+        path: "/inventory/adjustments",
+        permission: "inventory.read",
+      },
+      {
+        icon: <BoxCubeIcon />,
+        name: "Stock Transfer",
+        path: "/inventory/transfers",
+        permission: "inventory.read",
+      },
+      {
+        icon: <BoxCubeIcon />,
+        name: "Stock Opname",
+        path: "/inventory/opname",
         permission: "inventory.read",
       },
     ],
@@ -71,9 +150,33 @@ const navigation: NavSection[] = [
         permission: "coa.read",
       },
       {
+        icon: <UserCircleIcon />,
+        name: "Pelanggan & Pemasok",
+        path: "/master/contacts",
+        permission: "contact.read",
+      },
+      {
+        icon: <BoxCubeIcon />,
+        name: "Produk & Jasa",
+        path: "/master/products",
+        permission: "item.read",
+      },
+      {
+        icon: <TableIcon />,
+        name: "Gudang",
+        path: "/master/warehouses",
+        permission: "inventory.read",
+      },
+      {
         icon: <TableIcon />,
         name: "Jurnal Umum",
         path: "/accounting/journals",
+        permission: "journal.read",
+      },
+      {
+        icon: <PageIcon />,
+        name: "Periode Akuntansi",
+        path: "/accounting/periods",
         permission: "journal.read",
       },
       {
@@ -82,11 +185,41 @@ const navigation: NavSection[] = [
         path: "/reports",
         permission: "report.financial.read",
       },
+      {
+        icon: <BoxCubeIcon />,
+        name: "Aset Tetap",
+        path: "/fixed-assets",
+        permission: "fixed_asset.read",
+      },
     ],
   },
   {
     label: "Administrasi",
     items: [
+      {
+        icon: <DollarLineIcon />,
+        name: "Bank & Kas",
+        path: "/cash-bank/accounts",
+        permission: "report.financial.read",
+      },
+      {
+        icon: <DollarLineIcon />,
+        name: "Transaksi Kas & Bank",
+        path: "/cash-bank/transactions",
+        permission: "cash.read",
+      },
+      {
+        icon: <DollarLineIcon />,
+        name: "Rekonsiliasi Bank",
+        path: "/cash-bank/reconciliations",
+        permission: "report.financial.read",
+      },
+      {
+        icon: <PageIcon />,
+        name: "Kode Pajak",
+        path: "/master/taxes",
+        permission: "settings.manage",
+      },
       {
         icon: <UserCircleIcon />,
         name: "Audit Log",
@@ -98,6 +231,24 @@ const navigation: NavSection[] = [
         name: "Pengaturan",
         path: "/settings/company",
         permission: "settings.manage",
+      },
+      {
+        icon: <TableIcon />,
+        name: "Pemetaan Akun",
+        path: "/settings/account-mapping",
+        permission: "settings.manage",
+      },
+      {
+        icon: <UserCircleIcon />,
+        name: "Pengguna",
+        path: "/settings/users",
+        permission: "user.manage",
+      },
+      {
+        icon: <CheckCircleIcon />,
+        name: "Roles & Permission",
+        path: "/settings/roles",
+        permission: "role.manage",
       },
     ],
   },

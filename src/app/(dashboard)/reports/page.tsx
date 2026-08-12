@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 import { formatIDR } from "@/domain/money";
-import { getActiveCompanyContext } from "@/server/queries/company-context";
+import { requireCompanyPermission } from "@/server/auth/require-permission";
 import { getReportHealth } from "@/server/queries/reports";
 export const metadata: Metadata = { title: "Laporan" };
 function ReconciliationCard({
@@ -43,7 +44,7 @@ function ReconciliationCard({
   );
 }
 export default async function ReportsPage() {
-  const context = await getActiveCompanyContext();
+  const context = await requireCompanyPermission("report.financial.read");
   const health = await getReportHealth(context.companyId);
   return (
     <div>
@@ -80,11 +81,26 @@ export default async function ReportsPage() {
         <h2 className="font-semibold text-gray-900 dark:text-white">
           Katalog laporan
         </h2>
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-          General Ledger, Trial Balance, Laba Rugi, Neraca, Arus Kas, AR Aging,
-          dan AP Aging bersumber dari ledger dan subledger perusahaan aktif.
-          Kontrol di atas menjadi guard sebelum ekspor atau penutupan periode.
-        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ["general-ledger", "Buku Besar"],
+            ["trial-balance", "Neraca Saldo"],
+            ["profit-loss", "Laba Rugi"],
+            ["balance-sheet", "Neraca"],
+            ["cash-flow", "Arus Kas"],
+            ["ar-aging", "Umur Piutang"],
+            ["ap-aging", "Umur Utang"],
+            ["tax", "Laporan Pajak"],
+          ].map(([path, label]) => (
+            <Link
+              className="hover:border-brand-300 hover:text-brand-600 rounded-xl border border-gray-200 p-4 text-sm font-semibold text-gray-700 dark:border-gray-800 dark:text-gray-300"
+              href={`/reports/${path}`}
+              key={path}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
       </section>
     </div>
   );

@@ -1,0 +1,16 @@
+export const ACCOUNT_MAPPING_DEFINITIONS = [
+  ["accounts_receivable", "Piutang Usaha"],
+  ["accounts_payable", "Utang Usaha"],
+  ["inventory", "Persediaan"],
+  ["cost_of_goods_sold", "Harga Pokok Penjualan"],
+  ["sales_revenue", "Pendapatan Penjualan"],
+  ["goods_received_not_invoiced", "Barang Diterima Belum Ditagih (GRNI)"],
+  ["output_tax", "Pajak Keluaran"],
+  ["input_tax", "Pajak Masukan"],
+  ["withholding_tax", "Pajak Potong"],
+  ["bank_fee", "Biaya Bank"],
+  ["rounding", "Pembulatan"],
+  ["retained_earnings", "Laba Ditahan"],
+  ["exchange_gain", "Laba Selisih Kurs"],
+  ["exchange_loss", "Rugi Selisih Kurs"],
+] as const;
