@@ -1,5 +1,10 @@
-import { createClient, type User } from "@supabase/supabase-js";
+import {
+  createClient,
+  type User,
+  type WebSocketLikeConstructor,
+} from "@supabase/supabase-js";
 import { config } from "dotenv";
+import WebSocket from "ws";
 import { z } from "zod";
 
 config({ path: ".env.local", quiet: true });
@@ -36,11 +41,17 @@ if (
   throw new Error("Demo seed is blocked in production.");
 }
 
+// `ws` implements the WebSocket contract used by Realtime. Its DefinitelyTyped
+// constructor includes an additional server-only `null` overload, so an
+// explicit interop cast is required even though the runtime API is compatible.
+const nodeWebSocketTransport = WebSocket as unknown as WebSocketLikeConstructor;
+
 const supabase = createClient(
   environment.NEXT_PUBLIC_SUPABASE_URL,
   environment.SUPABASE_SERVICE_ROLE_KEY,
   {
     auth: { autoRefreshToken: false, persistSession: false },
+    realtime: { transport: nodeWebSocketTransport },
   },
 );
 
@@ -121,8 +132,16 @@ async function main(): Promise<void> {
     "bootstrap_demo_company",
     { p_users: users },
   );
-  if (error || typeof companyId !== "string")
-    throw new Error("The database rejected demo company bootstrap.");
+  if (error) {
+    const context = [error.code, error.message, error.details, error.hint]
+      .filter(Boolean)
+      .join(" | ");
+    throw new Error(`The database rejected demo company bootstrap: ${context}`);
+  }
+  if (typeof companyId !== "string")
+    throw new Error(
+      "The database returned an invalid demo company identifier.",
+    );
 
   process.stdout.write(
     `Demo company is ready (${companyId}). Passwords were read from the environment and were not logged.\n`,

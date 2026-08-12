@@ -1,6 +1,10 @@
-import { createClient } from "@supabase/supabase-js";
+import {
+  createClient,
+  type WebSocketLikeConstructor,
+} from "@supabase/supabase-js";
 import Decimal from "decimal.js";
 import { config } from "dotenv";
+import WebSocket from "ws";
 import { z } from "zod";
 
 config({ path: ".env.local", quiet: true });
@@ -12,10 +16,17 @@ const environment = z
   })
   .parse(process.env);
 
+// See seed-demo.ts: the implementation is compatible, but `ws` exposes an
+// extra server-only constructor overload that needs an explicit interop cast.
+const nodeWebSocketTransport = WebSocket as unknown as WebSocketLikeConstructor;
+
 const supabase = createClient(
   environment.NEXT_PUBLIC_SUPABASE_URL,
   environment.SUPABASE_SERVICE_ROLE_KEY,
-  { auth: { autoRefreshToken: false, persistSession: false } },
+  {
+    auth: { autoRefreshToken: false, persistSession: false },
+    realtime: { transport: nodeWebSocketTransport },
+  },
 );
 async function main(): Promise<void> {
   const { data: companies, error: companiesError } = await supabase
