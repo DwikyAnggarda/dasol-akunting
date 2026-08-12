@@ -2,6 +2,12 @@ begin;
 
 create extension if not exists btree_gist with schema extensions;
 
+-- PostgreSQL requires the referenced column set to be a candidate key. The
+-- warehouse primary key makes `id` globally unique, while this additional key
+-- also lets tenant-safe foreign keys enforce `(company_id, warehouse_id)`.
+alter table public.warehouses
+  add constraint warehouses_company_id_id_key unique (company_id, id);
+
 create table public.payment_terms (
   id uuid primary key default gen_random_uuid(),
   company_id uuid not null references public.companies(id) on delete restrict,
