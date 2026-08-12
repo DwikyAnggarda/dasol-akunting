@@ -5,11 +5,13 @@ import { useActionState } from "react";
 
 import {
   forgotPasswordAction,
-  initialAuthActionState,
   loginAction,
   resetPasswordAction,
-  type AuthActionState,
 } from "@/features/auth/actions";
+import {
+  initialAuthActionState,
+  type AuthActionState,
+} from "@/features/auth/state";
 
 type AuthMode = "forgot" | "login" | "reset";
 

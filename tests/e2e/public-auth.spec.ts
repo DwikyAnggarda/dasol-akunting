@@ -22,3 +22,19 @@ test("login layout remains usable on mobile", async ({ page }, testInfo) => {
     page.getByRole("button", { name: "Masuk ke Dasol" }),
   ).toBeInViewport();
 });
+
+test("login submission returns a controlled authentication error", async ({
+  page,
+}) => {
+  await page.goto("/login");
+  await page.getByLabel("Email").fill("missing-user@example.test");
+  const password = page.getByLabel("Kata sandi", { exact: true });
+  await password.evaluate((input) => input.removeAttribute("minlength"));
+  await password.fill("short");
+  await page.getByRole("button", { name: "Masuk ke Dasol" }).click();
+
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByRole("status")).toHaveText(
+    "Kata sandi minimal 8 karakter.",
+  );
+});

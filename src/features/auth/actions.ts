@@ -10,16 +10,7 @@ import {
   loginSchema,
   resetPasswordSchema,
 } from "./schemas";
-
-export type AuthActionState = {
-  message: string;
-  status: "error" | "idle" | "success";
-};
-
-export const initialAuthActionState: AuthActionState = {
-  message: "",
-  status: "idle",
-};
+import type { AuthActionState } from "./state";
 
 function invalidInput(message: string): AuthActionState {
   return { message, status: "error" };
