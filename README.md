@@ -4,6 +4,8 @@ Dasol is a multi-company web accounting foundation for Indonesian businesses. It
 
 > Status: functional development baseline, not yet production-ready. Local database/pgTAP and credentialed end-to-end flows must pass in the target infrastructure before production use. Tax labels and rates in demo data are examples, not tax advice or a claim of regulatory compliance.
 
+For role-based operating instructions, workflows, screenshots, troubleshooting, and the feature limitation matrix, start with the [Dasol User Guide](docs/user-guide/README.md).
+
 ## Implemented features
 
 - Email/password login, password recovery/reset, session refresh, logout, protected routes, and verified company selection.

@@ -23,6 +23,8 @@
     "db:test": "supabase test db",
     "db:lint": "supabase db lint --local --level error",
     "db:types": "supabase gen types typescript --local > src/types/database.generated.ts",
+    "docs:screenshots": "node scripts/capture-user-guide-screenshots.mjs",
+    "docs:validate": "node scripts/validate-user-guide.mjs",
     "seed:demo": "tsx scripts/seed-demo.ts",
     "verify:accounting": "tsx scripts/verify-accounting.ts"
   },
