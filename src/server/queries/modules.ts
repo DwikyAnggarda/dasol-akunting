@@ -146,19 +146,26 @@ async function getInvoices(
 ): Promise<InvoiceRow[]> {
   const { supabase } = await requireUser();
   const table = kind === "sales" ? "sales_invoices" : "purchase_invoices";
-  const relation = kind === "sales" ? "customer_id" : "supplier_id";
   const { data, error } = await supabase
     .from(table)
     .select(
-      `id, document_number, document_date, due_date, status, total, outstanding_balance, contacts!${relation}(display_name)`,
+      "id, document_number, document_date, due_date, status, total, outstanding_balance, contacts(display_name)",
     )
     .eq("company_id", companyId)
     .order("document_date", { ascending: false })
     .limit(100);
-  if (error)
+  if (error) {
+    console.error("Invoice list query failed", {
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+      kind,
+      message: error.message,
+    });
     throw new Error(
       `Invoice ${kind === "sales" ? "penjualan" : "pembelian"} tidak dapat dimuat.`,
     );
+  }
   return parseRows(invoiceSchema, data, "Data invoice tidak valid.").map(
     (row) => ({
       contact: row.contacts.display_name,
