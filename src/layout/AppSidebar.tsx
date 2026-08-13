@@ -1,8 +1,10 @@
 "use client";
 
+import { useCallback, useRef } from "react";
 import Link, { useLinkStatus } from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
+import { useDashboardNavigation } from "@/components/layout/dashboard-navigation";
 import { useSidebar } from "@/context/SidebarContext";
 import {
   BoxCubeIcon,
@@ -293,9 +295,21 @@ function SidebarLinkContent({
 
 export default function AppSidebar({ permissions }: { permissions: string[] }) {
   const { isExpanded, isHovered, isMobileOpen, setIsHovered } = useSidebar();
+  const { pendingPathname } = useDashboardNavigation();
   const pathname = usePathname();
+  const router = useRouter();
+  const prefetchedPaths = useRef(new Set<string>());
   const permissionSet = new Set(permissions);
   const showLabels = isExpanded || isHovered || isMobileOpen;
+  const prefetchOnIntent = useCallback(
+    (path: string) => {
+      if (prefetchedPaths.current.has(path)) return;
+
+      prefetchedPaths.current.add(path);
+      router.prefetch(path);
+    },
+    [router],
+  );
 
   return (
     <aside
@@ -348,13 +362,19 @@ export default function AppSidebar({ permissions }: { permissions: string[] }) {
               ) : null}
               <ul className="space-y-1.5">
                 {visibleItems.map((item) => {
-                  const active = isPathActive(pathname, item.path);
+                  const active = isPathActive(
+                    pendingPathname ?? pathname,
+                    item.path,
+                  );
                   return (
                     <li key={item.path}>
                       <Link
                         aria-current={active ? "page" : undefined}
                         className={`menu-item group ${active ? "menu-item-active" : "menu-item-inactive"} ${showLabels ? "justify-start" : "justify-center"}`}
                         href={item.path}
+                        onFocus={() => prefetchOnIntent(item.path)}
+                        onPointerEnter={() => prefetchOnIntent(item.path)}
+                        prefetch={false}
                         title={showLabels ? undefined : item.name}
                       >
                         <SidebarLinkContent

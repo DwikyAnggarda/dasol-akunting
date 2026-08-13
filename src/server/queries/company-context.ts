@@ -50,27 +50,32 @@ export const getCompanyMemberships = cache(
 
 export const getActiveCompanyContext = cache(
   async (): Promise<ActiveCompanyContext> => {
-    const { supabase, user } = await requireUser();
-    const cookieStore = await cookies();
+    const [{ supabase, user }, cookieStore] = await Promise.all([
+      requireUser(),
+      cookies(),
+    ]);
     const companyId = cookieStore.get(ACTIVE_COMPANY_COOKIE)?.value;
     if (!companyId || !z.uuid().safeParse(companyId).success)
       redirect("/select-company");
 
-    const { data, error } = await supabase
-      .from("company_memberships")
-      .select("id, company_id, companies!inner(code, name), roles!inner(name)")
-      .eq("company_id", companyId)
-      .eq("user_id", user.id)
-      .eq("status", "active")
-      .maybeSingle();
+    const [membershipResult, permissionResult] = await Promise.all([
+      supabase
+        .from("company_memberships")
+        .select(
+          "id, company_id, companies!inner(code, name), roles!inner(name)",
+        )
+        .eq("company_id", companyId)
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .maybeSingle(),
+      supabase.rpc("get_my_permissions", { p_company_id: companyId }),
+    ]);
+    const { data, error } = membershipResult;
+    const { data: permissionData, error: permissionError } = permissionResult;
 
     const parsedMembership = membershipSchema.safeParse(data);
     if (error || !parsedMembership.success) redirect("/select-company");
 
-    const { data: permissionData, error: permissionError } = await supabase.rpc(
-      "get_my_permissions",
-      { p_company_id: companyId },
-    );
     const parsedPermissions = z.array(z.string()).safeParse(permissionData);
     if (permissionError || !parsedPermissions.success) {
       throw new Error("Hak akses perusahaan tidak dapat diverifikasi.");
