@@ -2,6 +2,14 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
+const siteUrl =
+  process.env.DOCUSAURUS_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : 'http://localhost:3000');
+
 const config: Config = {
   title: 'Dasol User Guide',
   tagline: 'Panduan penggunaan Dasol',
@@ -11,7 +19,7 @@ const config: Config = {
     v4: true,
   },
 
-  url: 'https://docs.dasol.example.com',
+  url: siteUrl,
   baseUrl: '/',
 
   organizationName: 'dasol',
