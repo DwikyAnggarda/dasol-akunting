@@ -71,7 +71,7 @@ Fitur yang belum tersedia penuh tidak disamarkan sebagai fitur selesai. Yang pal
 - Viewer preset tidak memiliki permission ekspor;
 - notifikasi sudah durable, tetapi belum realtime di header atau email.
 
-Rincian status teknis tersedia dalam [Functional Completion Report](../FUNCTIONAL_COMPLETION_REPORT.md).
+Rincian status teknis tersedia dalam dokumen internal `docs/FUNCTIONAL_COMPLETION_REPORT.md`.
 
 ### Matriks Batas Implementasi
 
