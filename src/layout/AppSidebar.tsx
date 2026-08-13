@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useSidebar } from "@/context/SidebarContext";
@@ -258,6 +258,39 @@ function isPathActive(pathname: string, path: string): boolean {
   return pathname === path || pathname.startsWith(`${path}/`);
 }
 
+function SidebarLinkContent({
+  active,
+  item,
+  showLabels,
+}: {
+  active: boolean;
+  item: NavItem;
+  showLabels: boolean;
+}) {
+  const { pending } = useLinkStatus();
+
+  return (
+    <>
+      <span
+        className={
+          active || pending
+            ? "menu-item-icon-active"
+            : "menu-item-icon-inactive"
+        }
+      >
+        {item.icon}
+      </span>
+      {showLabels ? <span className="menu-item-text">{item.name}</span> : null}
+      {pending ? (
+        <span
+          aria-hidden
+          className="bg-brand-500 absolute right-2 size-1.5 animate-pulse rounded-full"
+        />
+      ) : null}
+    </>
+  );
+}
+
 export default function AppSidebar({ permissions }: { permissions: string[] }) {
   const { isExpanded, isHovered, isMobileOpen, setIsHovered } = useSidebar();
   const pathname = usePathname();
@@ -324,18 +357,11 @@ export default function AppSidebar({ permissions }: { permissions: string[] }) {
                         href={item.path}
                         title={showLabels ? undefined : item.name}
                       >
-                        <span
-                          className={
-                            active
-                              ? "menu-item-icon-active"
-                              : "menu-item-icon-inactive"
-                          }
-                        >
-                          {item.icon}
-                        </span>
-                        {showLabels ? (
-                          <span className="menu-item-text">{item.name}</span>
-                        ) : null}
+                        <SidebarLinkContent
+                          active={active}
+                          item={item}
+                          showLabels={showLabels}
+                        />
                       </Link>
                     </li>
                   );

@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { z } from "zod";
 
 import type {
@@ -29,55 +30,57 @@ function mapMembership(
   };
 }
 
-export async function getCompanyMemberships(): Promise<
-  CompanyMembershipSummary[]
-> {
-  const { supabase, user } = await requireUser();
-  const { data, error } = await supabase
-    .from("company_memberships")
-    .select("id, company_id, companies!inner(code, name), roles!inner(name)")
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .order("created_at");
+export const getCompanyMemberships = cache(
+  async (): Promise<CompanyMembershipSummary[]> => {
+    const { supabase, user } = await requireUser();
+    const { data, error } = await supabase
+      .from("company_memberships")
+      .select("id, company_id, companies!inner(code, name), roles!inner(name)")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .order("created_at");
 
-  if (error) throw new Error("Keanggotaan perusahaan tidak dapat dimuat.");
-  const parsed = z.array(membershipSchema).safeParse(data);
-  if (!parsed.success)
-    throw new Error("Data keanggotaan perusahaan tidak valid.");
-  return parsed.data.map(mapMembership);
-}
+    if (error) throw new Error("Keanggotaan perusahaan tidak dapat dimuat.");
+    const parsed = z.array(membershipSchema).safeParse(data);
+    if (!parsed.success)
+      throw new Error("Data keanggotaan perusahaan tidak valid.");
+    return parsed.data.map(mapMembership);
+  },
+);
 
-export async function getActiveCompanyContext(): Promise<ActiveCompanyContext> {
-  const { supabase, user } = await requireUser();
-  const cookieStore = await cookies();
-  const companyId = cookieStore.get(ACTIVE_COMPANY_COOKIE)?.value;
-  if (!companyId || !z.uuid().safeParse(companyId).success)
-    redirect("/select-company");
+export const getActiveCompanyContext = cache(
+  async (): Promise<ActiveCompanyContext> => {
+    const { supabase, user } = await requireUser();
+    const cookieStore = await cookies();
+    const companyId = cookieStore.get(ACTIVE_COMPANY_COOKIE)?.value;
+    if (!companyId || !z.uuid().safeParse(companyId).success)
+      redirect("/select-company");
 
-  const { data, error } = await supabase
-    .from("company_memberships")
-    .select("id, company_id, companies!inner(code, name), roles!inner(name)")
-    .eq("company_id", companyId)
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .maybeSingle();
+    const { data, error } = await supabase
+      .from("company_memberships")
+      .select("id, company_id, companies!inner(code, name), roles!inner(name)")
+      .eq("company_id", companyId)
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .maybeSingle();
 
-  const parsedMembership = membershipSchema.safeParse(data);
-  if (error || !parsedMembership.success) redirect("/select-company");
+    const parsedMembership = membershipSchema.safeParse(data);
+    if (error || !parsedMembership.success) redirect("/select-company");
 
-  const { data: permissionData, error: permissionError } = await supabase.rpc(
-    "get_my_permissions",
-    { p_company_id: companyId },
-  );
-  const parsedPermissions = z.array(z.string()).safeParse(permissionData);
-  if (permissionError || !parsedPermissions.success) {
-    throw new Error("Hak akses perusahaan tidak dapat diverifikasi.");
-  }
+    const { data: permissionData, error: permissionError } = await supabase.rpc(
+      "get_my_permissions",
+      { p_company_id: companyId },
+    );
+    const parsedPermissions = z.array(z.string()).safeParse(permissionData);
+    if (permissionError || !parsedPermissions.success) {
+      throw new Error("Hak akses perusahaan tidak dapat diverifikasi.");
+    }
 
-  return {
-    ...mapMembership(parsedMembership.data),
-    permissions: parsedPermissions.data,
-    userEmail: user.email ?? "",
-    userId: user.id,
-  };
-}
+    return {
+      ...mapMembership(parsedMembership.data),
+      permissions: parsedPermissions.data,
+      userEmail: user.email ?? "",
+      userId: user.id,
+    };
+  },
+);
