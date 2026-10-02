@@ -5,6 +5,7 @@ import type { MutationState } from "@/features/shared/mutation-state";
 
 export type ListSearchParams = {
   active?: string;
+  deleted?: string;
   page?: string;
   q?: string;
   saved?: string;

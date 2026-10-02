@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 
+import { ConfirmActionForm } from "@/components/forms/ConfirmActionForm";
 import { ListFilters } from "@/components/common/ListFilters";
 import { ModulePage, StatusBadge } from "@/components/common/ModulePage";
 import { Pagination } from "@/components/common/Pagination";
 import { formatIDR } from "@/domain/money";
-import { toggleProductAction } from "@/features/master/actions";
+import {
+  deleteProductAction,
+  toggleProductAction,
+} from "@/features/master/actions";
 import {
   MasterRowActions,
   mutationMessage,
@@ -60,12 +64,23 @@ export default async function ProductsPage({
           key: "id",
           label: "Aksi",
           render: (_value, row) => (
-            <MasterRowActions
-              action={toggleProductAction}
-              basePath="/master/products"
-              canManage={canManage}
-              row={row}
-            />
+            <div className="flex items-center justify-end gap-2">
+              <MasterRowActions
+                action={toggleProductAction}
+                basePath="/master/products"
+                canManage={canManage}
+                row={row}
+              />
+              {canManage ? (
+                <ConfirmActionForm
+                  action={deleteProductAction}
+                  confirmMessage={`Hapus permanen ${row.name}? Produk yang sudah digunakan atau masih memiliki stok tidak dapat dihapus.`}
+                  fields={{ id: row.id, version: String(row.version) }}
+                  label="Hapus permanen"
+                  tone="danger"
+                />
+              ) : null}
+            </div>
           ),
         },
       ]}
@@ -85,7 +100,11 @@ export default async function ProductsPage({
         />
       }
       rows={rows}
-      successMessage={mutationMessage(params, "Produk")}
+      successMessage={
+        params.deleted === "1"
+          ? "Produk berhasil dihapus permanen."
+          : mutationMessage(params, "Produk")
+      }
       title="Produk & Jasa"
       trailing={
         <Pagination

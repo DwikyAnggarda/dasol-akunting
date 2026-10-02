@@ -245,6 +245,28 @@ export async function toggleProductAction(
   return toggleMaster(formData, "products", "item.write", "/master/products");
 }
 
+export async function deleteProductAction(
+  _state: MutationState,
+  formData: FormData,
+): Promise<MutationState> {
+  const parsed = archiveFormSchema.safeParse({
+    id: value(formData, "id"),
+    version: value(formData, "version"),
+  });
+  if (!parsed.success) return validationFailure(parsed.error);
+  const { company, supabase } =
+    await requireMutationPermission("item.write");
+  const { data, error } = await supabase.rpc("delete_unused_product", {
+    p_company_id: company.companyId,
+    p_product_id: parsed.data.id,
+    p_version: parsed.data.version,
+  });
+  if (error) return databaseFailure(error, "Produk tidak dapat dihapus.");
+  if (!data) return conflictFailure();
+  revalidatePath("/master/products");
+  redirect("/master/products?deleted=1");
+}
+
 export async function saveWarehouseAction(
   _state: MutationState,
   formData: FormData,
